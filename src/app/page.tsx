@@ -23,25 +23,42 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-import { CheckCheck } from 'lucide-react';
+
 import { Progress } from "@/components/ui/progress"
-import { useState } from "react"
+import { createElement, useState } from "react"
+import { error } from "console"
 
 
 export default function Home() {
 
+
+
+
 let [progress,setStartTime]=useState(0) 
 let [checked,setChecket]=useState(true)
 const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [message, setMessage] = useState('')
+const [sucess, setMessage] = useState('')
+const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
+
+
+
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedFile) return
 
+  // Verifica existencia do arquivo
+  if (!selectedFile) return setError('Arquivo Inexistente!')
+  // Verifica tipo de arquivo
+     console.log(selectedFile.size )
+     const fileType=selectedFile.name.split('.').slice(1).toString()
+     const fileSize=selectedFile.size 
+  
+  if( fileType !='xlsx' )return  setError('Tipo de Arquivo Incorreto!') 
+  if(fileSize>100000) return setError('Arquivo Muito Grante')
+  
     const formData = new FormData()
     formData.append('file', selectedFile)
-
+    
     const res = await fetch('/api', {
       method: 'POST',
       body: formData,
@@ -49,24 +66,26 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
     const data = await res.json()
     setMessage(data.message)
-  }
 
-
-  function ProgressBar(){
+  // Mostra Barra de Carregamento 
+    function ProgressBar(){
  
  for(let i =10; i>progress;i--){
  progress=progress+100
  setStartTime(progress)
  setChecket(false)
-return   console.log(progress)
-
-
-
-
+ 
+return   
 }
-
-
 }
+     ProgressBar()
+     
+  }
+
+
+  
+
+
   return (
     
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -99,32 +118,22 @@ return   console.log(progress)
 
 <div className="mt-3 ">
     <Progress value={progress}  /> 
-  {  <p className="text-xs text-gray-900 dark:text-white ml-100">100%</p> }
-   {message && <p className="text-xs text-gray-900 dark:text-white ">{message}</p>}
+  { progress ? (<p className="text-xs text-gray-500 dark:text-white ml-100">100%</p>):(
+    <p className="text-xs text-gray-500 dark:text-white ml-100"></p>
+  )  }
+  { <p className="text-xs text-red-500 dark:text-white ">{error}</p>}
+  { <p className="text-xs text-green-500 dark:text-white ">{sucess}</p>}
   </div>   
     <div className="mt-3">
        <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button type="submit" onSubmit={handleSubmit} variant="outline" className="mt-1 "  >Enviar
+        <Button  variant="outline" className="mt-1 " type="submit"   onSubmit={handleSubmit}  >Enviar
         
         
 
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Deseja enviar sua base de dados?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Certifique que todos os dados estão corretos antes de enviar!
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction type="submit" onSubmit={handleSubmit} onClick={ProgressBar}>Enviar
-             </AlertDialogAction>
-          
-        </AlertDialogFooter>
-      </AlertDialogContent>
+   
     </AlertDialog>
     
     </div>
