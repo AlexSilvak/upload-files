@@ -1,6 +1,5 @@
 "use client"
 import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -23,10 +22,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-
 import { Progress } from "@/components/ui/progress"
-import { createElement, useState } from "react"
-import { error } from "console"
+import {  useState } from "react"
+
 
 
 export default function Home() {
@@ -49,7 +47,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   // Verifica existencia do arquivo
   if (!selectedFile) return setError('Arquivo Inexistente!')
   // Verifica tipo de arquivo
-     console.log(selectedFile.size )
+     
      const fileType=selectedFile.name.split('.').slice(1).toString()
      const fileSize=selectedFile.size 
   
@@ -89,8 +87,11 @@ return
   return (
     
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start ">
-     <form onSubmit={handleSubmit}>     
+       
+     <form onSubmit={handleSubmit}>  
+         
   <Card  className="px-40 py-10">
   <CardHeader>
     <CardTitle>Planilha de dados</CardTitle>
@@ -110,7 +111,7 @@ return
             </svg>
             
             <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Inserir</span> Arquivo</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400"> xlsx,xls ou csv (maximo 20 MB)</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400"> xlsx,xls ou csv (maximo 1 MB)</p>
         </div>
         <input id="dropzone-file" type="file" className="hidden" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} />
     </label>
@@ -118,11 +119,12 @@ return
 
 <div className="mt-3 ">
     <Progress value={progress}  /> 
-  { progress ? (<p className="text-xs text-gray-500 dark:text-white ml-100">100%</p>):(
+  { progress ? (<p className="text-xs text-gray-500 dark:text-white ml-100">100% </p>):(
     <p className="text-xs text-gray-500 dark:text-white ml-100"></p>
   )  }
   { <p className="text-xs text-red-500 dark:text-white ">{error}</p>}
   { <p className="text-xs text-green-500 dark:text-white ">{sucess}</p>}
+ 
   </div>   
     <div className="mt-3">
        <AlertDialog>
@@ -149,7 +151,7 @@ return
 </form>
 
       </main>
-      
+       
     </div>
   );
 }
