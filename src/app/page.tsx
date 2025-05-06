@@ -30,58 +30,53 @@ import {  useState } from "react"
 export default function Home() {
 
 
+  const [progress, setProgress] = useState(0);
+  const [checked, setChecked] = useState(true);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [success, setMessage] = useState('');
+  const [error, setError] = useState('');
 
-
-let [progress,setStartTime]=useState(0) 
-let [checked,setChecket]=useState(true)
-const [selectedFile, setSelectedFile] = useState<File | null>(null)
-const [sucess, setMessage] = useState('')
-const [error, setError] = useState('')
-
-
-
+  const FileType = ['xlsx', 'xls', 'csv'] as const;
+  type FileExtension = typeof FileType[number];
 
 const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-  // Verifica existencia do arquivo
-  if (!selectedFile) return setError('Arquivo Inexistente!')
-  // Verifica tipo de arquivo
-     
-     const fileType=selectedFile.name.split('.').slice(1).toString()
-     const fileSize=selectedFile.size 
   
-  if( fileType !='xlsx' )return  setError('Tipo de Arquivo Incorreto!') 
-  if(fileSize>100000) return setError('Arquivo Muito Grante')
-  
-    const formData = new FormData()
-    formData.append('file', selectedFile)
-    
+    // Verifica existencia do arquivo
+    if (!selectedFile) return setError('Arquivo Inexistente!');
+
+    // Verifica tipo de arquivo
+    const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase();
+    if (!fileExtension || !FileType.includes(fileExtension as FileExtension)) {
+      return setError('Tipo de Arquivo Incorreto!');
+    }
+
+    // Verifica tamanho do arquivo
+    const fileSize = selectedFile.size;
+    if (fileSize > 100000) return setError('Arquivo Muito Grande');
+
+    // Envia arquivo
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
     const res = await fetch('/api', {
       method: 'POST',
       body: formData,
-    })
+    });
 
-    const data = await res.json()
-    setMessage(data.message)
+    const data = await res.json();
+    setMessage(data.message);
 
-  // Mostra Barra de Carregamento 
-    function ProgressBar(){
- 
- for(let i =10; i>progress;i--){
- progress=progress+100
- setStartTime(progress)
- setChecket(false)
- 
-return   
-}
-}
-     ProgressBar()
-     
-  }
-
-
-  
+    // Mostra barra de progresso simulada
+    setChecked(false);
+    let value = 0;
+    const interval = setInterval(() => {
+      value += 10;
+      setProgress(value);
+      if (value >= 100) clearInterval(interval);
+    }, 100);
+  };
 
 
   return (
@@ -119,11 +114,11 @@ return
 
 <div className="mt-3 ">
     <Progress value={progress}  /> 
-  { progress ? (<p className="text-xs text-gray-500 dark:text-white ml-100">100% </p>):(
+  { progress ? (<p className="text-xs text-gray-500 dark:text-white ml-100 ">100% </p>):(
     <p className="text-xs text-gray-500 dark:text-white ml-100"></p>
   )  }
-  { <p className="text-xs text-red-500 dark:text-white ">{error}</p>}
-  { <p className="text-xs text-green-500 dark:text-white ">{sucess}</p>}
+  { <p className="text-xs text-red-500 dark:text-white mt-2">{error}</p>}
+  { <p className="text-xs text-green-500 dark:text-white mt-2 ">{success}</p>}
  
   </div>   
     <div className="mt-3">
